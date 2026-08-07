@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // 🎛️ MASTER TOGGLE: Set to true to enable the recurring premium popup
-const ENABLE_INSTALL_POPUP = true; 
+const ENABLE_INSTALL_POPUP = false; 
 
 const InstallPopup = () => {
   const [isInstallable, setIsInstallable] = useState(false);

@@ -410,6 +410,7 @@ const handleResetPassword = async () => {
 
   const fetchAllData = useCallback(async () => {
     if (!token || token === "null" || isMaintenanceMode || isAppLocked) { setIsServerWaking(false); return; }
+    setIsServerWaking(true);
     try {
       const headers = { Authorization: `Bearer ${token}` };
       const [tRes, mRes, iRes] = await Promise.all([
@@ -686,12 +687,50 @@ const handleResetPassword = async () => {
 
   if (isMaintenanceMode) return <MaintenanceScreen />;
 
-  if (isServerWaking) return (
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", backgroundColor: "#f1f5f9", padding: "20px" }}>
-      <style>{globalStyles}</style>
-      <div style={{ width: "100%", maxWidth: "400px", backgroundColor: "white", padding: "40px 20px", borderRadius: "16px", boxShadow: "0 4px 15px rgba(0,0,0,0.05)", textAlign: "center" }}>
-        <h1 className="brand-logo" style={{ marginBottom: "30px" }}>SUBHAMS</h1>
-        <div className="spinner"></div><h2 style={{marginTop: "20px", color: "#64748b"}}>Communicating...</h2>
+// 🟢 1. ONLY block the full screen if they are not logged in yet!
+  if (isServerWaking && !token) return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", backgroundColor: "#f8fafc", padding: "20px" }}>
+      <style>
+        {`
+          ${globalStyles}
+          @keyframes coin-flip { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+          @keyframes float-up-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+          @keyframes shadow-pulse { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(0.5); opacity: 0.1; } }
+          
+          .full-gold-coin { 
+            border-radius: 50%; background: linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #b45309 100%); 
+            box-shadow: inset 0 0 15px rgba(180, 83, 9, 0.8), 0 10px 20px rgba(245, 158, 11, 0.4); 
+            display: flex; align-items: center; justify-content: center; color: #fffbeb; font-weight: 900; 
+            text-shadow: 1px 2px 4px rgba(180, 83, 9, 0.8); 
+            animation: float-up-down 2s ease-in-out infinite, coin-flip 1.5s linear infinite; 
+            /* 📱 MOBILE SIZES (Default) */
+            width: 70px; height: 70px; font-size: 34px; border: 4px solid #fef08a;
+          }
+          .full-floor-shadow { 
+            background: #000; border-radius: 50%; filter: blur(3px); 
+            animation: shadow-pulse 2s ease-in-out infinite; 
+            /* 📱 MOBILE SIZES (Default) */
+            width: 40px; height: 8px; margin-top: 20px;
+          }
+
+          /* 💻 LAPTOP/DESKTOP UPGRADE SIZES */
+          @media (min-width: 768px) {
+            .full-gold-coin { width: 110px; height: 110px; font-size: 50px; border: 6px solid #fef08a; }
+            .full-floor-shadow { width: 60px; height: 12px; margin-top: 30px; }
+          }
+        `}
+      </style>
+      <div style={{ width: "100%", maxWidth: "420px", backgroundColor: "white", padding: "45px 25px", borderRadius: "24px", boxShadow: "0 20px 40px -10px rgba(0,0,0,0.1)", textAlign: "center", border: "1px solid #e2e8f0" }}>
+        
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "25px" }}>
+          <div className="full-gold-coin">₹</div>
+          <div className="full-floor-shadow"></div>
+        </div>
+        
+        <h1 className="brand-logo" style={{ marginBottom: "10px", fontSize: "28px" }}>SUBHAMS PMMS</h1>
+        <h2 style={{ marginTop: "10px", color: "#0f172a", fontSize: "20px", fontWeight: "900" }}>Waking Servers...</h2>
+        <p style={{ margin: 0, color: "#64748b", fontSize: "14px", fontWeight: "600" }}>Establishing a secure financial connection.</p>
+      
       </div>
     </div>
   );
@@ -855,8 +894,59 @@ const handleResetPassword = async () => {
           <button style={{ padding: "10px 20px", background: "#ef4444", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer" }} onClick={logout}>Logout</button>
         </div>
       </nav>
+<div className="container" style={{ position: 'relative', minHeight: '65vh' }}>
+        
+        {/* 🌟 🟢 3. PREMIUM BLURRED COIN OVERLAY (Responsive, Only blocks the container!) */}
+        {isServerWaking && (
+          <div style={{
+            position: "absolute", top: 0, left: 0, width: "100%", height: "100%", 
+            background: "rgba(241, 245, 249, 0.5)", backdropFilter: "blur(6px)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", 
+            zIndex: 50, borderRadius: "16px"
+          }}>
+            <style>
+              {`
+                @keyframes coin-flip { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
+                @keyframes float-up-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+                @keyframes shadow-pulse { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(0.5); opacity: 0.1; } }
+                
+                .inner-gold-coin { 
+                  border-radius: 50%; background: linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #b45309 100%); 
+                  box-shadow: inset 0 0 15px rgba(180, 83, 9, 0.8), 0 10px 20px rgba(245, 158, 11, 0.4); 
+                  display: flex; align-items: center; justify-content: center; color: #fffbeb; font-weight: 900; 
+                  text-shadow: 1px 2px 4px rgba(180, 83, 9, 0.8); 
+                  animation: float-up-down 2s ease-in-out infinite, coin-flip 1.5s linear infinite; 
+                  /* 📱 MOBILE SIZES (Default) */
+                  width: 60px; height: 60px; font-size: 30px; border: 3px solid #fef08a;
+                }
+                .inner-floor-shadow { 
+                  background: #000; border-radius: 50%; filter: blur(3px); 
+                  animation: shadow-pulse 2s ease-in-out infinite; 
+                  /* 📱 MOBILE SIZES (Default) */
+                  width: 35px; height: 6px; margin-top: 15px;
+                }
 
-      <div className="container">
+                /* 💻 LAPTOP/DESKTOP UPGRADE SIZES */
+                @media (min-width: 768px) {
+                  .inner-gold-coin { width: 90px; height: 90px; font-size: 42px; border: 5px solid #fef08a; }
+                  .inner-floor-shadow { width: 50px; height: 10px; margin-top: 25px; }
+                }
+              `}
+            </style>
+            
+            <div className="inner-gold-coin">₹</div>
+            <div className="inner-floor-shadow"></div>
+            
+            {/* Added a glass-pill behind the text so it pops perfectly over the blurred dashboard! */}
+            <div style={{ background: 'rgba(255,255,255,0.85)', padding: '10px 25px', borderRadius: '30px', marginTop: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', textAlign: 'center', border: '1px solid white' }}>
+              <h2 style={{ margin: "0", color: "#0f172a", fontSize: "18px", fontWeight: "900" }}>Syncing Vault</h2>
+              <p style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "13px", fontWeight: "700" }}>Retrieving your secure financial data...</p>
+            </div>
+
+          </div>
+        )}
+
+        {/* 🟢 Your existing dashboard grid stays directly underneath! */}
         <div className="dashboard-grid">
           <div className="metric-card">
             <div className="metric-title">TOTAL INCOME <br/>ఆదాయం</div>
