@@ -1123,14 +1123,14 @@ const handleResetPassword = async () => {
             <Mail size={18} color="#f59e0b" /> pavanvenkat63@gmail.com
           </a>
 
-          <a href="https://bhavyams.subhamsnetworks.in/" target="_blank" rel="noopener noreferrer" style={{ 
+          <a href="https://hub.subhamsnetworks.in/" target="_blank" rel="noopener noreferrer" style={{ 
             display: "flex", alignItems: "center", gap: "8px", 
             padding: "12px 24px", background: "#3b82f6", color: "white", 
             borderRadius: "12px", textDecoration: "none", fontWeight: "700", 
             boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
             transition: "all 0.2s ease"
           }}>
-            <ExternalLink size={18} /> Bhavyams VendorHub
+            <ExternalLink size={18} /> Subhams Hub
           </a>
         </div>
 
