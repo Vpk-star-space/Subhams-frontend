@@ -1,84 +1,58 @@
 import React, { useState, useEffect } from 'react';
 
-// 🎛️ MASTER TOGGLE: Set to true to enable the recurring premium popup
-const ENABLE_INSTALL_POPUP = false; 
-
 const InstallPopup = () => {
   const [isInstallable, setIsInstallable] = useState(false);
-  const [showPopup, setShowPopup] = useState(false); 
 
-  // Check if the user has already installed the app
-  const isInstalled = typeof window !== 'undefined' && window.matchMedia('(display-mode: standalone)').matches;
+  // 🌟 Dynamic State to check if already installed (Bulletproof for Chrome & Safari)
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const isStandalone = window.matchMedia('(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)').matches;
+    const isIOS = window.navigator.standalone === true;
+    const isSaved = localStorage.getItem('pmms_installed') === 'true';
+    return isStandalone || isIOS || isSaved;
+  });
 
-
-
-  // 1. Capture the Chrome Install Event
+  // 1. Capture the Install Event Safely (No more setTimeout loops!)
   useEffect(() => {
-  
-
-    if (window.deferredInstallPrompt) {
-
-      setIsInstallable(true);
-    }
-
     const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-  
+      e.preventDefault(); // Prevents Chrome's automatic error logs
       window.deferredInstallPrompt = e; 
-      setIsInstallable(true);
+      setIsInstallable(true); // Triggers our beautiful top banner
     };
-    
+
+    const handleAppInstalled = () => {
+      setIsInstalled(true); 
+      localStorage.setItem('pmms_installed', 'true'); // Saves forever
+      window.deferredInstallPrompt = null;
+    };
+
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-  }, []);
-  
-  // 2. RECURRING TIMING LOGIC (Wait 10s -> Show 16s -> Loop)
-  useEffect(() => {
-    if (!ENABLE_INSTALL_POPUP || isInstalled) return;
+    window.addEventListener('appinstalled', handleAppInstalled);
 
-    let timeoutId;
-    const startLoop = () => {
-      timeoutId = setTimeout(() => {
-       
-        setShowPopup(true); 
-
-        setTimeout(() => {
-          setShowPopup(false); 
-          if (!isInstalled && ENABLE_INSTALL_POPUP) {
-            startLoop();
-          }
-        }, 16000); 
-
-      }, 10000);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
+  }, []);
 
-    startLoop();
-    return () => clearTimeout(timeoutId);
-  }, [isInstalled]);
-
-  // 3. The Install Button Logic
+  // 2. THE INSTALL BUTTON CLICK
   const handleInstallClick = async () => {
     const promptEvent = window.deferredInstallPrompt; 
     
- 
-
-    if (!promptEvent) {
-      alert("Browser Security: To install securely, tap your browser menu (three dots) and select 'Add to Home screen' or 'Install App'.");
-      return;
-    }
+    if (!promptEvent) return;
     
-    promptEvent.prompt();
+    promptEvent.prompt(); // Safely triggers the official Google Install UI
     const { outcome } = await promptEvent.userChoice;
-
     
     if (outcome === 'accepted') {
       setIsInstallable(false);
-      setShowPopup(false); 
+      setIsInstalled(true); 
+      localStorage.setItem('pmms_installed', 'true'); // Lock it in forever
     }
     window.deferredInstallPrompt = null; 
   };
 
-  // 4. The Native Share Logic
+  // 3. THE NATIVE SHARE LOGIC
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -95,37 +69,34 @@ const InstallPopup = () => {
 
   return (
     <>
-      {/* 🟢 PREMIUM INJECTED CSS ANIMATIONS */}
       <style>
         {`
+          /* Share Button Liquid Glow */
           @keyframes liquidGlow {
             0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
             70% { box-shadow: 0 0 0 15px rgba(16, 185, 129, 0); }
             100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
           }
+          /* Share Icon Gentle Bounce */
           @keyframes iconFloat {
             0%, 100% { transform: translateY(0) scale(1); }
             50% { transform: translateY(-3px) scale(1.1); }
           }
-          @keyframes premiumPopIn {
-            0% { opacity: 0; transform: translate(-50%, -40%) scale(0.92); filter: blur(4px); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: blur(0px); }
-          }
-          @keyframes radarScan {
-            0% { top: -10%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 110%; opacity: 0; }
-          }
-          @keyframes shimmerBtn {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
+          /* Banner Slide Down */
+          @keyframes bannerSlideDown {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
           }
         `}
       </style>
-
+      
       {/* ↗️ 1. LIQUID GLASS SHARE BUTTON */}
-      <div style={{ position: 'fixed', bottom: '95px', right: '25px', zIndex: 9997 }}>
+      <div style={{ 
+        position: 'fixed', 
+        bottom: '95px', 
+        right: '25px',  
+        zIndex: 9997 
+      }}>
         <button 
           onClick={handleShare} 
           title="Share Subhams PMMS"
@@ -148,67 +119,60 @@ const InstallPopup = () => {
             boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
           }}
         >
-          <span style={{ fontSize: '18px', animation: 'iconFloat 2s infinite ease-in-out', display: 'inline-block' }}>
+          <span style={{ 
+            fontSize: '18px', 
+            animation: 'iconFloat 2s infinite ease-in-out',
+            display: 'inline-block' 
+          }}>
             ↗️
           </span>
         </button>
       </div>
 
-      {/* ⚡ 2. THE PREMIUM SECURE INSTALL POPUP */}
-      {showPopup && !isInstalled && ENABLE_INSTALL_POPUP && (
+      {/* 📲 2. THE PREMIUM TOP-BANNER INSTALL (Sleek, No blocking) */}
+      {isInstallable && !isInstalled && (
         <div style={{
-          position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          zIndex: 9999, background: '#ffffff', borderRadius: '24px', 
-          boxShadow: '0 25px 50px -12px rgba(16, 185, 129, 0.25), 0 0 0 100vw rgba(15, 23, 42, 0.85)', 
-          border: '1px solid rgba(16, 185, 129, 0.3)', padding: '40px 30px', width: '90%', maxWidth: '420px', 
-          textAlign: 'center', 
-          animation: 'premiumPopIn 0.5s cubic-bezier(0.16, 1, 0.3, 1)' 
+            background: 'linear-gradient(90deg, #0f172a, #065f46)', // PMMS Secure Dark Green Theme
+            color: 'white',
+            padding: '12px 15px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            boxSizing: 'border-box',
+            zIndex: 99999, // Keeps it above the navbar
+            boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+            animation: 'bannerSlideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
-          
-          {/* Animated Shield Container */}
-          <div style={{ 
-            position: 'relative', overflow: 'hidden', background: '#ecfdf5', width: '85px', height: '85px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%',
-            margin: '0 auto 20px auto', boxShadow: 'inset 0 2px 10px rgba(16, 185, 129, 0.2), 0 4px 15px rgba(16, 185, 129, 0.1)'
-          }}>
-            <span style={{ fontSize: '42px', zIndex: 2 }}>🛡️</span>
-            {/* The Radar Scan Line */}
-            <div style={{ 
-              position: 'absolute', width: '100%', height: '3px', background: '#10b981', 
-              boxShadow: '0 0 12px #10b981', left: 0, zIndex: 3, animation: 'radarScan 2.5s infinite linear' 
-            }} />
-          </div>
-          
-          <h4 style={{ margin: '0 0 10px 0', color: '#0f172a', fontSize: '24px', fontWeight: '800', letterSpacing: '-0.5px' }}>
-            Secure PMMS Connection
-          </h4>
-          
-          <p style={{ margin: '0 0 25px 0', fontSize: '15px', color: '#475569', lineHeight: '1.6' }}>
-            Add PMMS to your Home Screen.<br/>
-            <strong>Zero URL typing. App Can Use Anytime, Anywhere.</strong><br/>
-            
-            <span style={{ 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '20px', 
-              padding: '12px', background: 'linear-gradient(90deg, #f0fdf4, #ecfdf5)', color: '#065f46', 
-              borderRadius: '12px', fontWeight: '700', fontSize: '13.5px', borderLeft: '4px solid #10b981' 
-            }}>
-              ✅ Install to hide this message forever!
-            </span>
-          </p>
-          
-          <button 
-            onClick={handleInstallClick}
-            style={{ 
-              borderRadius: '12px', border: 'none', color: '#fff', fontWeight: 'bold', cursor: 'pointer', 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s ease',
-              background: 'linear-gradient(90deg, #10b981 0%, #34d399 50%, #10b981 100%)', 
-              backgroundSize: '200% auto', width: '100%', padding: '16px', fontSize: '16px', 
-              opacity: isInstallable ? 1 : 0.9, boxShadow: '0 10px 15px -3px rgba(16, 185, 129, 0.4)',
-              animation: 'shimmerBtn 3s infinite linear' 
-            }}
-          >
-            {isInstallable ? '📱 Install Secure App' : '📱 View Install Steps'}
-          </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '28px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.5))' }}>💰</span>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontSize: '15px', fontWeight: '900', letterSpacing: '0.5px' }}>Install PMMS Vault</span>
+                    <span style={{ fontSize: '11px', color: '#a7f3d0', fontWeight: '600' }}>Secure • Fast • App Access</span>
+                </div>
+            </div>
+            <button 
+                onClick={handleInstallClick}
+                style={{
+                    background: 'linear-gradient(135deg, #facc15, #f59e0b)', // PMMS Gold Button
+                    color: '#713f12',
+                    border: 'none',
+                    padding: '8px 18px',
+                    borderRadius: '20px',
+                    fontWeight: '900',
+                    fontSize: '12px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 10px rgba(245, 158, 11, 0.4)',
+                    transition: 'transform 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+            >
+                INSTALL APP
+            </button>
         </div>
       )}
     </>
