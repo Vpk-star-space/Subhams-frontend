@@ -896,57 +896,53 @@ const handleResetPassword = async () => {
       </nav>
 <div className="container" style={{ position: 'relative', minHeight: '65vh' }}>
         
-        {/* 🌟 🟢 3. PREMIUM BLURRED COIN OVERLAY (Responsive, Only blocks the container!) */}
+        {/* 🌟 🟢 3. PREMIUM TOP-CORNER SYNC BADGE */}
         {isServerWaking && (
           <div style={{
-            position: "absolute", top: 0, left: 0, width: "100%", height: "100%", 
-            background: "rgba(241, 245, 249, 0.5)", backdropFilter: "blur(6px)",
-            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", 
-            zIndex: 50, borderRadius: "16px"
+            position: "absolute", 
+            top: "15px", 
+            right: "15px", 
+            background: "rgba(255, 255, 255, 0.95)", 
+            backdropFilter: "blur(10px)",
+            display: "flex", 
+            alignItems: "center", 
+            gap: "12px", 
+            zIndex: 50, 
+            borderRadius: "50px",
+            padding: "8px 20px 8px 8px",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+            border: "1px solid #e2e8f0"
           }}>
             <style>
               {`
-                @keyframes coin-flip { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
-                @keyframes float-up-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-                @keyframes shadow-pulse { 0%, 100% { transform: scale(1); opacity: 0.25; } 50% { transform: scale(0.5); opacity: 0.1; } }
+                @keyframes coin-spin-fast { 0% { transform: rotateY(0deg); } 100% { transform: rotateY(360deg); } }
                 
-                .inner-gold-coin { 
-                  border-radius: 50%; background: linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #b45309 100%); 
-                  box-shadow: inset 0 0 15px rgba(180, 83, 9, 0.8), 0 10px 20px rgba(245, 158, 11, 0.4); 
-                  display: flex; align-items: center; justify-content: center; color: #fffbeb; font-weight: 900; 
-                  text-shadow: 1px 2px 4px rgba(180, 83, 9, 0.8); 
-                  animation: float-up-down 2s ease-in-out infinite, coin-flip 1.5s linear infinite; 
-                  /* 📱 MOBILE SIZES (Default) */
-                  width: 60px; height: 60px; font-size: 30px; border: 3px solid #fef08a;
-                }
-                .inner-floor-shadow { 
-                  background: #000; border-radius: 50%; filter: blur(3px); 
-                  animation: shadow-pulse 2s ease-in-out infinite; 
-                  /* 📱 MOBILE SIZES (Default) */
-                  width: 35px; height: 6px; margin-top: 15px;
-                }
-
-                /* 💻 LAPTOP/DESKTOP UPGRADE SIZES */
-                @media (min-width: 768px) {
-                  .inner-gold-coin { width: 90px; height: 90px; font-size: 42px; border: 5px solid #fef08a; }
-                  .inner-floor-shadow { width: 50px; height: 10px; margin-top: 25px; }
+                .corner-gold-coin { 
+                  border-radius: 50%; 
+                  background: linear-gradient(135deg, #fde047 0%, #f59e0b 50%, #b45309 100%); 
+                  box-shadow: inset 0 0 8px rgba(180, 83, 9, 0.8), 0 4px 10px rgba(245, 158, 11, 0.4); 
+                  display: flex; align-items: center; justify-content: center; 
+                  color: #fffbeb; font-weight: 900; 
+                  text-shadow: 1px 2px 2px rgba(180, 83, 9, 0.8); 
+                  animation: coin-spin-fast 1.5s linear infinite; 
+                  width: 35px; height: 35px; font-size: 18px; border: 2px solid #fef08a;
+                  flex-shrink: 0;
                 }
               `}
             </style>
             
-            <div className="inner-gold-coin">₹</div>
-            <div className="inner-floor-shadow"></div>
+            {/* The Tiny Spinning Coin */}
+            <div className="corner-gold-coin">₹</div>
             
-            {/* Added a glass-pill behind the text so it pops perfectly over the blurred dashboard! */}
-            <div style={{ background: 'rgba(255,255,255,0.85)', padding: '10px 25px', borderRadius: '30px', marginTop: '20px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', textAlign: 'center', border: '1px solid white' }}>
-              <h2 style={{ margin: "0", color: "#0f172a", fontSize: "18px", fontWeight: "900" }}>Syncing Vault</h2>
-              <p style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "13px", fontWeight: "700" }}>Retrieving your secure financial data...</p>
+            {/* The Status Text */}
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ margin: "0", color: "#0f172a", fontSize: "14px", fontWeight: "900", letterSpacing: "0.5px" }}>Syncing...</span>
+              <span style={{ margin: "0", color: "#64748b", fontSize: "10px", fontWeight: "700" }}>Waking Server</span>
             </div>
-
           </div>
         )}
 
-        {/* 🟢 Your existing dashboard grid stays directly underneath! */}
+        {/* Your normal dashboard grid continues here */}
         <div className="dashboard-grid">
           <div className="metric-card">
             <div className="metric-title">TOTAL INCOME <br/>ఆదాయం</div>
